@@ -18,7 +18,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 )
 
 // TextArea is a pannable 2 dimensional text widget. It wraps both

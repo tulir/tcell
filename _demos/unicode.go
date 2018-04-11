@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/zyedidia/tcell"
-	"github.com/zyedidia/tcell/encoding"
+	"maunium.net/go/tcell"
+	"maunium.net/go/tcell/encoding"
 	"github.com/mattn/go-runewidth"
 )
 

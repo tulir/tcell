@@ -91,7 +91,7 @@ regular mouse motion events, and wheel events, if your terminal supports it.
 ## Termbox Compatibility 
 
 A compatibility layer for termbox is provided in the compat
-directory.  To use it, try importing "github.com/zyedidia/tcell/termbox"
+directory.  To use it, try importing "maunium.net/go/tcell/termbox"
 instead.  Most termbox-go programs will probably work without further
 modification.
 

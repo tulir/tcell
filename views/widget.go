@@ -15,7 +15,7 @@
 package views
 
 import (
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 )
 
 // Widget is the base object that all onscreen elements implement.
