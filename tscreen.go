@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"io"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
 	"sync"
