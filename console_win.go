@@ -17,25 +17,26 @@
 package tcell
 
 import (
+	"errors"
 	"sync"
 	"syscall"
 	"unicode/utf16"
 	"unsafe"
-	"errors"
 )
 
 type cScreen struct {
-	in    syscall.Handle
-	out   syscall.Handle
+	in         syscall.Handle
+	out        syscall.Handle
 	cancelflag syscall.Handle
-	scandone chan struct{}
-	evch  chan Event
-	quit  chan struct{}
-	curx  int
-	cury  int
-	style Style
-	clear bool
-	fini  bool
+	title      syscall.Handle
+	scandone   chan struct{}
+	evch       chan Event
+	quit       chan struct{}
+	curx       int
+	cury       int
+	style      Style
+	clear      bool
+	fini       bool
 
 	w int
 	h int
@@ -114,10 +115,11 @@ var (
 	procSetConsoleWindowInfo       = k32.NewProc("SetConsoleWindowInfo")
 	procSetConsoleScreenBufferSize = k32.NewProc("SetConsoleScreenBufferSize")
 	procSetConsoleTextAttribute    = k32.NewProc("SetConsoleTextAttribute")
+	procSetConsoleTitle            = k32.NewProc("SetConsoleTitleW")
 )
 
 const (
-	w32Infinite = ^uintptr(0)
+	w32Infinite    = ^uintptr(0)
 	w32WaitObject0 = uintptr(0)
 )
 
@@ -190,6 +192,10 @@ func (s *cScreen) DisableMouse() {
 	s.setInMode(modeResizeEn)
 }
 
+func (s *cScreen) SetTitle(title string) {
+	procSetConsoleTitle.Call(uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(title))))
+}
+
 func (s *cScreen) Fini() {
 	s.Lock()
 	s.style = StyleDefault
@@ -197,7 +203,6 @@ func (s *cScreen) Fini() {
 	s.cury = -1
 	s.fini = true
 	s.Unlock()
-
 	s.setCursorInfo(&s.ocursor)
 	s.setInMode(s.oimode)
 	s.setOutMode(s.oomode)
@@ -530,7 +535,7 @@ func (s *cScreen) getConsoleInput() error {
 		uintptr(pWaitObjects),
 		uintptr(0),
 		w32Infinite)
-	// WaitForMultipleObjects returns WAIT_OBJECT_0 + the index. 
+	// WaitForMultipleObjects returns WAIT_OBJECT_0 + the index.
 	switch rv {
 	case w32WaitObject0: // s.cancelFlag
 		return errors.New("cancelled")

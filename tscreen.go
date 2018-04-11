@@ -18,7 +18,9 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -67,43 +69,44 @@ type tKeyCode struct {
 
 // tScreen represents a screen backed by a terminfo implementation.
 type tScreen struct {
-	ti        *terminfo.Terminfo
-	h         int
-	w         int
-	fini      bool
-	cells     CellBuffer
-	in        *os.File
-	out       *os.File
-	curstyle  Style
-	style     Style
-	evch      chan Event
-	sigwinch  chan os.Signal
-	quit      chan struct{}
-	indoneq   chan struct{}
-	keyexist  map[Key]bool
-	keycodes  map[string]*tKeyCode
-	keychan   chan []byte
-	keytimer  *time.Timer
-	keyexpire time.Time
-	cx        int
-	cy        int
-	mouse     []byte
-	clear     bool
-	cursorx   int
-	cursory   int
-	tiosp     *termiosPrivate
-	baud      int
-	wasbtn    bool
-	acs       map[rune]string
-	charset   string
-	encoder   transform.Transformer
-	decoder   transform.Transformer
-	fallback  map[rune]string
-	colors    map[Color]Color
-	palette   []Color
-	truecolor bool
-	escaped   bool
-	buttondn  bool
+	ti          *terminfo.Terminfo
+	h           int
+	w           int
+	fini        bool
+	cells       CellBuffer
+	in          *os.File
+	out         io.Writer
+	curstyle    Style
+	style       Style
+	evch        chan Event
+	sigwinch    chan os.Signal
+	quit        chan struct{}
+	indoneq     chan struct{}
+	keyexist    map[Key]bool
+	keycodes    map[string]*tKeyCode
+	keychan     chan []byte
+	keytimer    *time.Timer
+	keyexpire   time.Time
+	cx          int
+	cy          int
+	mouse       []byte
+	clear       bool
+	cursorx     int
+	cursory     int
+	tiosp       *termiosPrivate
+	baud        int
+	wasbtn      bool
+	acs         map[rune]string
+	charset     string
+	encoder     transform.Transformer
+	decoder     transform.Transformer
+	fallback    map[rune]string
+	colors      map[Color]Color
+	palette     []Color
+	truecolor   bool
+	escaped     bool
+	buttondn    bool
+	hasSetTitle bool
 
 	sync.Mutex
 }
@@ -159,6 +162,7 @@ func (t *tScreen) Init() error {
 	t.TPuts(ti.HideCursor)
 	t.TPuts(ti.EnableAcs)
 	t.TPuts(ti.Clear)
+	t.TPuts("\x1b[?2004h")
 
 	t.quit = make(chan struct{})
 
@@ -354,6 +358,42 @@ func (t *tScreen) prepareKeys() {
 		t.prepareKey(KeyRight, "\x1bOC")
 		t.prepareKey(KeyLeft, "\x1bOD")
 		t.prepareKey(KeyHome, "\x1bOH")
+
+		// Extra arrow key commands
+		t.prepareKey(KeyAltUp, "\x1b[1;9A")
+		t.prepareKey(KeyAltDown, "\x1b[1;9B")
+		t.prepareKey(KeyAltLeft, "\x1b[1;9D")
+		t.prepareKey(KeyAltRight, "\x1b[1;9C")
+		t.prepareKey(KeyAltUp, "\x1b\x1b[A")
+		t.prepareKey(KeyAltDown, "\x1b\x1b[B")
+		t.prepareKey(KeyAltLeft, "\x1b\x1b[D")
+		t.prepareKey(KeyAltRight, "\x1b\x1b[C")
+		t.prepareKey(KeyAltUp, "\x1b[1;3A")
+		t.prepareKey(KeyAltDown, "\x1b[1;3B")
+		t.prepareKey(KeyAltLeft, "\x1b[1;3D")
+		t.prepareKey(KeyAltRight, "\x1b[1;3C")
+		t.prepareKey(KeyShiftUp, "\x1b[1;2A")
+		t.prepareKey(KeyShiftDown, "\x1b[1;2B")
+		t.prepareKey(KeyShiftLeft, "\x1b[1;2D")
+		t.prepareKey(KeyShiftRight, "\x1b[1;2C")
+		t.prepareKey(KeyCtrlUp, "\x1b[1;5A")
+		t.prepareKey(KeyCtrlDown, "\x1b[1;5B")
+		t.prepareKey(KeyCtrlLeft, "\x1b[1;5D")
+		t.prepareKey(KeyCtrlRight, "\x1b[1;5C")
+		t.prepareKey(KeyAltShiftUp, "\x1b[1;10A")
+		t.prepareKey(KeyAltShiftDown, "\x1b[1;10B")
+		t.prepareKey(KeyAltShiftLeft, "\x1b[1;10D")
+		t.prepareKey(KeyAltShiftRight, "\x1b[1;10C")
+		t.prepareKey(KeyAltShiftUp, "\x1b[1;4A")
+		t.prepareKey(KeyAltShiftDown, "\x1b[1;4B")
+		t.prepareKey(KeyAltShiftLeft, "\x1b[1;4D")
+		t.prepareKey(KeyAltShiftRight, "\x1b[1;4C")
+		t.prepareKey(KeyCtrlShiftUp, "\x1b[1;6A")
+		t.prepareKey(KeyCtrlShiftDown, "\x1b[1;6B")
+		t.prepareKey(KeyCtrlShiftLeft, "\x1b[1;6D")
+		t.prepareKey(KeyCtrlShiftRight, "\x1b[1;6C")
+		t.prepareKeyMod(KeyCtrlPgUp, ModCtrl, "\x1b[5;5~")
+		t.prepareKeyMod(KeyCtrlPgDn, ModCtrl, "\x1b[6;5~")
 	}
 
 outer:
@@ -382,6 +422,26 @@ outer:
 	}
 }
 
+func (t *tScreen) ResetTitle() {
+	if t.hasSetTitle {
+		//Reset terminal title. USERNAME for Windows support. Assumes USER and USERNAME will not both be set.
+		wd, _ := os.Getwd()
+		host, _ := os.Hostname()
+		var titlestring string
+		if strings.Contains(os.Getenv("TERM"), "xterm") {
+			titlestring = "\033]2;" + os.Getenv("USER") + os.Getenv("USERNAME") + "@" + host + ": " + wd + "\007"
+			t.TPuts(titlestring)
+		}
+		if os.Getenv("TERM") == "screen" {
+			for _, s := range strings.Split(os.Getenv("SHELL"), "/") {
+				titlestring = "\033k" + s + "\033\\"
+				titlestring = "\033]2;" + os.Getenv("USER") + os.Getenv("USERNAME") + "@" + host + ": " + wd + "\007"
+			}
+			t.TPuts(titlestring)
+		}
+	}
+}
+
 func (t *tScreen) Fini() {
 	t.Lock()
 	defer t.Unlock()
@@ -390,10 +450,13 @@ func (t *tScreen) Fini() {
 	t.cells.Resize(0, 0)
 	t.TPuts(ti.ShowCursor)
 	t.TPuts(ti.AttrOff)
+	t.ResetTitle()
 	t.TPuts(ti.Clear)
 	t.TPuts(ti.ExitCA)
 	t.TPuts(ti.ExitKeypad)
-	t.TPuts(ti.TParm(ti.MouseMode, 0))
+	// Close bracketed paste
+	t.TPuts("\x1b[?2004l")
+	t.DisableMouse()
 	t.curstyle = Style(-1)
 	t.clear = false
 	t.fini = true
@@ -682,6 +745,12 @@ func (t *tScreen) hideCursor() {
 }
 
 func (t *tScreen) draw() {
+	// Buffer all output instead of sending it directly to the terminal
+	// We'll send it when the draw is over
+	buf := &bytes.Buffer{}
+	out := t.out
+	t.out = buf
+
 	// clobber cursor position, because we're gonna change it all
 	t.cx = -1
 	t.cy = -1
@@ -708,6 +777,10 @@ func (t *tScreen) draw() {
 		}
 	}
 
+	// Send everything to the terminal
+	t.out = out
+	io.WriteString(t.out, buf.String())
+
 	// restore the cursor
 	t.showCursor()
 }
@@ -720,7 +793,11 @@ func (t *tScreen) EnableMouse() {
 
 func (t *tScreen) DisableMouse() {
 	if len(t.mouse) != 0 {
-		t.TPuts(t.ti.TParm(t.ti.MouseMode, 0))
+		if t.ti.MouseMode == "\x1b[?1000h\x1b[?1002h\x1b[?1015h\x1b[?1006h" {
+			t.TPuts("\x1b[?1006l\x1b[?1015l\x1b[?10021l\x1b[?1000l")
+		} else {
+			t.TPuts(t.ti.TParm(t.ti.MouseMode, 0))
+		}
 	}
 }
 
@@ -858,7 +935,7 @@ func (t *tScreen) clip(x, y int) (int, int) {
 	return x, y
 }
 
-func (t *tScreen) postMouseEvent(x, y, btn int) {
+func (t *tScreen) postMouseEvent(x, y, btn int, motion bool) {
 
 	// XTerm mouse events only report at most one button at a time,
 	// which may include a wheel button.  Wheel motion events are
@@ -914,7 +991,7 @@ func (t *tScreen) postMouseEvent(x, y, btn int) {
 	// to the screen in that case.
 	x, y = t.clip(x, y)
 
-	ev := NewEventMouse(x, y, button, mod)
+	ev := NewEventMouse(x, y, button, mod, motion)
 	t.PostEvent(ev)
 }
 
@@ -1031,7 +1108,7 @@ func (t *tScreen) parseSgrMouse(buf *bytes.Buffer) (bool, bool) {
 				buf.ReadByte()
 				i--
 			}
-			t.postMouseEvent(x, y, btn)
+			t.postMouseEvent(x, y, btn, motion)
 			return true, true
 		}
 	}
@@ -1074,6 +1151,11 @@ func (t *tScreen) parseXtermMouse(buf *bytes.Buffer) (bool, bool) {
 			state++
 		case 3:
 			btn = int(b[i])
+			if btn != 128 && btn != 129 {
+				btn = int(b[i])
+			} else {
+				btn = 99
+			}
 			state++
 		case 4:
 			x = int(b[i]) - 32 - 1
@@ -1084,7 +1166,7 @@ func (t *tScreen) parseXtermMouse(buf *bytes.Buffer) (bool, bool) {
 				buf.ReadByte()
 				i--
 			}
-			t.postMouseEvent(x, y, btn)
+			t.postMouseEvent(x, y, btn, false)
 			return true, true
 		}
 	}
@@ -1173,6 +1255,29 @@ func (t *tScreen) parseRune(buf *bytes.Buffer) (bool, bool) {
 	return true, false
 }
 
+func (t *tScreen) parseBracketedPaste(buf *bytes.Buffer) (bool, bool) {
+	b := buf.Bytes()
+
+	// Replace all carriage returns with newlines
+	str := strings.Replace(string(b), "\r", "\n", -1)
+	if strings.HasPrefix(str, "\x1b[200~") {
+		// The bracketed paste has started
+		if strings.HasSuffix(str, "\x1b[201~") {
+			// The bracketed paste has ended
+			// Strip out the start and end sequences
+			ev := NewEventPaste(str[6 : len(b)-6])
+			t.PostEvent(ev)
+			for i := 0; i < len(b); i++ {
+				buf.ReadByte()
+			}
+			return true, true
+		}
+		// There is still more coming
+		return true, false
+	}
+	return false, false
+}
+
 func (t *tScreen) scanInput(buf *bytes.Buffer, expire bool) {
 
 	t.Lock()
@@ -1184,8 +1289,22 @@ func (t *tScreen) scanInput(buf *bytes.Buffer, expire bool) {
 			buf.Reset()
 			return
 		}
+		if !bytes.Contains(b, []byte("\x1b")) && utf8.RuneCount(b) > 1 {
+			ev := &EventPaste{t: time.Now(), text: string(bytes.Replace(b, []byte("\r"), []byte("\n"), -1))}
+			t.PostEvent(ev)
+			for i := 0; i < len(b); i++ {
+				buf.ReadByte()
+			}
+			continue
+		}
 
 		partials := 0
+
+		if part, comp := t.parseBracketedPaste(buf); comp {
+			continue
+		} else if part {
+			partials++
+		}
 
 		if part, comp := t.parseRune(buf); comp {
 			continue
@@ -1217,6 +1336,10 @@ func (t *tScreen) scanInput(buf *bytes.Buffer, expire bool) {
 		}
 
 		if partials == 0 || expire {
+			// Nothing was going to match, or we timed out
+			// waiting for more data -- just deliver the characters
+			// to the app & let them sort it out.  Possibly we
+			// should only do this for control characters like ESC.
 			if b[0] == '\x1b' {
 				if len(b) == 1 {
 					ev := NewEventKey(KeyEsc, 0, ModNone)
@@ -1228,10 +1351,7 @@ func (t *tScreen) scanInput(buf *bytes.Buffer, expire bool) {
 				buf.ReadByte()
 				continue
 			}
-			// Nothing was going to match, or we timed out
-			// waiting for more data -- just deliver the characters
-			// to the app & let them sort it out.  Possibly we
-			// should only do this for control characters like ESC.
+
 			by, _ := buf.ReadByte()
 			mod := ModNone
 			if t.escaped {
@@ -1386,3 +1506,14 @@ func (t *tScreen) HasKey(k Key) bool {
 }
 
 func (t *tScreen) Resize(int, int, int, int) {}
+
+func (t *tScreen) SetTitle(title string) {
+	if strings.Compare(os.Getenv("TERM"), "screen") == 0 {
+		t.hasSetTitle = true
+		t.TPuts("\033k" + title + "\033\\")
+	}
+	if strings.Contains(os.Getenv("TERM"), "xterm") {
+		t.TPuts("\033]2;" + title + "\007")
+		t.hasSetTitle = true
+	}
+}

@@ -1,4 +1,5 @@
 ## tcell <img src=tcell.png align=right>
+This is a fork of [tcell](https://github.com/gdamore/tcell) with the patches from [zyedidia](https://github.com/zyedidia/tcell).
 
 [![Linux Status](https://img.shields.io/travis/gdamore/tcell.svg?label=linux)](https://travis-ci.org/gdamore/tcell)
 [![Windows Status](https://img.shields.io/appveyor/ci/gdamore/tcell.svg?label=windows)](https://ci.appveyor.com/project/gdamore/tcell)
@@ -90,7 +91,7 @@ regular mouse motion events, and wheel events, if your terminal supports it.
 ## Termbox Compatibility 
 
 A compatibility layer for termbox is provided in the compat
-directory.  To use it, try importing "github.com/gdamore/tcell/termbox"
+directory.  To use it, try importing "github.com/zyedidia/tcell/termbox"
 instead.  Most termbox-go programs will probably work without further
 modification.
 

@@ -45,6 +45,7 @@ import (
 	"strings"
 
 	"github.com/gdamore/tcell/terminfo"
+	"maunium.net/go/tcell"
 )
 
 type termcap struct {
