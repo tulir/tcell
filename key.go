@@ -93,6 +93,26 @@ var KeyNames = map[Key]string{
 	KeyDown:           "Down",
 	KeyLeft:           "Left",
 	KeyRight:          "Right",
+	KeyAltUp:          "AltUp",
+	KeyAltDown:        "AltDown",
+	KeyAltLeft:        "AltLeft",
+	KeyAltRight:       "AltRight",
+	KeyCtrlUp:         "CtrlUp",
+	KeyCtrlDown:       "CtrlDown",
+	KeyCtrlLeft:       "CtrlLeft",
+	KeyCtrlRight:      "CtrlRight",
+	KeyShiftUp:        "ShiftUp",
+	KeyShiftDown:      "ShiftDown",
+	KeyShiftLeft:      "ShiftLeft",
+	KeyShiftRight:     "ShiftRight",
+	KeyAltShiftUp:     "AltShiftUp",
+	KeyAltShiftDown:   "AltShiftDown",
+	KeyAltShiftLeft:   "AltShiftLeft",
+	KeyAltShiftRight:  "AltShiftRight",
+	KeyCtrlShiftUp:    "CtrlShiftUp",
+	KeyCtrlShiftDown:  "CtrlShiftDown",
+	KeyCtrlShiftLeft:  "CtrlShiftLeft",
+	KeyCtrlShiftRight: "CtrlShiftRight",
 	KeyHome:           "Home",
 	KeyEnd:            "End",
 	KeyUpLeft:         "UpLeft",
@@ -102,6 +122,8 @@ var KeyNames = map[Key]string{
 	KeyCenter:         "Center",
 	KeyPgDn:           "PgDn",
 	KeyPgUp:           "PgUp",
+	KeyCtrlPgUp:       "CtrlPgUp",
+	KeyCtrlPgDn:       "CtrlPgDn",
 	KeyClear:          "Clear",
 	KeyExit:           "Exit",
 	KeyCancel:         "Cancel",
@@ -295,9 +317,31 @@ const (
 	KeyUpRight
 	KeyDownLeft
 	KeyDownRight
+	KeyAltUp
+	KeyAltDown
+	KeyAltLeft
+	KeyAltRight
+	KeyCtrlUp
+	KeyCtrlDown
+	KeyCtrlLeft
+	KeyCtrlRight
+	KeyShiftUp
+	KeyShiftDown
+	KeyShiftLeft
+	KeyShiftRight
+	KeyAltShiftUp
+	KeyAltShiftDown
+	KeyAltShiftLeft
+	KeyAltShiftRight
+	KeyCtrlShiftUp
+	KeyCtrlShiftDown
+	KeyCtrlShiftLeft
+	KeyCtrlShiftRight
 	KeyCenter
 	KeyPgUp
 	KeyPgDn
+	KeyCtrlPgUp
+	KeyCtrlPgDn
 	KeyHome
 	KeyEnd
 	KeyInsert

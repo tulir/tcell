@@ -49,7 +49,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gdamore/tcell/terminfo"
+	"maunium.net/go/tcell/terminfo"
 )
 
 type termcap struct {

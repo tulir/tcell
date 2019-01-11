@@ -1,4 +1,4 @@
-module github.com/gdamore/tcell
+module maunium.net/go/tcell
 
 go 1.9
 
