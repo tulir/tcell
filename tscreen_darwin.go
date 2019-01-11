@@ -51,13 +51,14 @@ func (t *tScreen) termioInit() error {
 	if t.in, e = os.OpenFile("/dev/tty", os.O_RDONLY, 0); e != nil {
 		goto failed
 	}
+
 	if t.out, e = os.OpenFile("/dev/tty", os.O_WRONLY, 0); e != nil {
 		goto failed
 	}
 
 	tios = uintptr(unsafe.Pointer(t.tiosp))
 	ioc = uintptr(syscall.TIOCGETA)
-	fd = uintptr(t.out.Fd())
+	fd = uintptr(t.out.(*os.File).Fd())
 	if _, _, e1 := syscall.Syscall6(syscall.SYS_IOCTL, fd, ioc, tios, 0, 0, 0); e1 != 0 {
 		e = e1
 		goto failed
@@ -97,7 +98,7 @@ failed:
 		t.in.Close()
 	}
 	if t.out != nil {
-		t.out.Close()
+		t.out.(*os.File).Close()
 	}
 	return e
 }
@@ -109,11 +110,11 @@ func (t *tScreen) termioFini() {
 	<-t.indoneq
 
 	if t.out != nil {
-		fd := uintptr(t.out.Fd())
+		fd := uintptr(t.out.(*os.File).Fd())
 		ioc := uintptr(syscall.TIOCSETAF)
 		tios := uintptr(unsafe.Pointer(t.tiosp))
 		syscall.Syscall6(syscall.SYS_IOCTL, fd, ioc, tios, 0, 0, 0)
-		t.out.Close()
+		t.out.(*os.File).Close()
 	}
 
 	// See above -- we background this call which might help, but
@@ -127,8 +128,7 @@ func (t *tScreen) termioFini() {
 }
 
 func (t *tScreen) getWinSize() (int, int, error) {
-
-	fd := uintptr(t.out.Fd())
+	fd := uintptr(t.out.(*os.File).Fd())
 	dim := [4]uint16{}
 	dimp := uintptr(unsafe.Pointer(&dim))
 	ioc := uintptr(syscall.TIOCGWINSZ)
