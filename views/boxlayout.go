@@ -15,7 +15,7 @@
 package views
 
 import (
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 )
 
 // BoxLayout is a container Widget that lays out its child widgets in

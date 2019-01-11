@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/zyedidia/tcell"
-	"github.com/zyedidia/tcell/views"
+	"maunium.net/go/tcell"
+	"maunium.net/go/tcell/views"
 )
 
 var app = &views.Application{}

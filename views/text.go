@@ -17,7 +17,7 @@ package views
 import (
 	"github.com/mattn/go-runewidth"
 
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 )
 
 // Text is a Widget with containing a block of text, which can optionally

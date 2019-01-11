@@ -15,7 +15,7 @@
 package views
 
 import (
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 )
 
 // View represents a logical view on an area.  It will have some underlying
