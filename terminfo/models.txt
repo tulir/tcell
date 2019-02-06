@@ -24,6 +24,7 @@ rxvt-unicode
 rxvt-unicode-256color
 screen
 screen-256color
+screen-256color-bce
 st
 st-256color
 st-truecolor
