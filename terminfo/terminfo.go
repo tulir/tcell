@@ -60,6 +60,8 @@ type Terminfo struct {
 	Underline    string   `json:"smul,omitempty"`   // smul
 	Bold         string   `json:"bold,omitempty"`   // bold
 	Blink        string   `json:"blink,omitempty"`  // blink
+	Italic       string   `json:"sitm,omitempty"`   // sitm
+	Strikethrough string  `json:"strikethrough,omitempty"` // strikethrough
 	Reverse      string   `json:"rev,omitempty"`    // rev
 	Dim          string   `json:"dim,omitempty"`    // dim
 	EnterKeypad  string   `json:"smkx,omitempty"`   // smkx

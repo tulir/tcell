@@ -122,5 +122,7 @@ func NewSimpleStyledText() *SimpleStyledText {
 	ss.styles['S'] = tcell.StyleDefault.Reverse(true)
 	ss.styles['U'] = tcell.StyleDefault.Underline(true)
 	ss.styles['B'] = tcell.StyleDefault.Bold(true)
+	ss.styles['I'] = tcell.StyleDefault.Italic(true)
+	ss.styles['X'] = tcell.StyleDefault.Strikethrough(true)
 	return ss
 }

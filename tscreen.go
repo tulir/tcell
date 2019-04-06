@@ -608,6 +608,12 @@ func (t *tScreen) drawCell(x, y int) int {
 		if attrs&AttrBold != 0 {
 			t.TPuts(ti.Bold)
 		}
+		if attrs&AttrItalic != 0 {
+			t.TPuts(ti.Italic)
+		}
+		if attrs&AttrStrikethrough != 0 {
+			t.TPuts(ti.Strikethrough)
+		}
 		if attrs&AttrUnderline != 0 {
 			t.TPuts(ti.Underline)
 		}

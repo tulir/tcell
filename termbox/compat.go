@@ -86,6 +86,8 @@ const (
 	AttrBold Attribute = 1 << (9 + iota)
 	AttrUnderline
 	AttrReverse
+	AttrItalic
+	AttrStrikethrough
 )
 
 func fixColor(c tcell.Color) tcell.Color {
@@ -126,6 +128,12 @@ func mkStyle(fg, bg Attribute) tcell.Style {
 	}
 	if (fg|bg)&AttrReverse != 0 {
 		st = st.Reverse(true)
+	}
+	if (fg|bg)&AttrItalic != 0 {
+		st = st.Italic(true)
+	}
+	if (fg|bg)&AttrStrikethrough != 0 {
+		st = st.Strikethrough(true)
 	}
 	return st
 }
