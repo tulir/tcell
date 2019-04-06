@@ -17,7 +17,7 @@ package views
 import (
 	"sync"
 
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 )
 
 // CellModel models the content of a CellView.  The dimensions used within

@@ -15,7 +15,7 @@
 package views
 
 import (
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 )
 
 // Spacer is a Widget that occupies no visible real-estate.  It is useful to

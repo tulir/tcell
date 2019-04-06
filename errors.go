@@ -18,7 +18,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/gdamore/tcell/terminfo"
+	"maunium.net/go/tcell/terminfo"
 )
 
 var (

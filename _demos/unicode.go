@@ -22,8 +22,8 @@ import (
 
 	"github.com/mattn/go-runewidth"
 
-	"github.com/gdamore/tcell"
-	"github.com/gdamore/tcell/encoding"
+	"maunium.net/go/tcell"
+	"maunium.net/go/tcell/encoding"
 )
 
 var row = 0

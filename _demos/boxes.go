@@ -22,7 +22,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 )
 
 func makebox(s tcell.Screen) {

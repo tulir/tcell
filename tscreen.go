@@ -27,7 +27,7 @@ import (
 
 	"golang.org/x/text/transform"
 
-	"github.com/gdamore/tcell/terminfo"
+	"maunium.net/go/tcell/terminfo"
 )
 
 var escseq string

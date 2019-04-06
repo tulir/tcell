@@ -15,7 +15,7 @@
 package views
 
 import (
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 	"unicode"
 )
 

@@ -26,7 +26,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/gdamore/tcell"
+	"maunium.net/go/tcell"
 )
 
 var red = int32(rand.Int() % 256)

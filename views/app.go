@@ -17,7 +17,7 @@ package views
 import (
 	"sync"
 
-	"github.com/zyedidia/tcell"
+	"maunium.net/go/tcell"
 )
 
 // Application represents an event-driven application running on a screen.

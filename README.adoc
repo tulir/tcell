@@ -3,9 +3,9 @@
 
 image:https://img.shields.io/travis/gdamore/tcell.svg?label=linux[Linux Status,link="https://travis-ci.org/gdamore/tcell"]
 image:https://img.shields.io/appveyor/ci/gdamore/tcell.svg?label=windows[Windows Status,link="https://ci.appveyor.com/project/gdamore/tcell"]
-image:https://img.shields.io/badge/license-APACHE2-blue.svg[Apache License,link="https://github.com/gdamore/tcell/blob/master/LICENSE"]
+image:https://img.shields.io/badge/license-APACHE2-blue.svg[Apache License,link="https://maunium.net/go/tcell/blob/master/LICENSE"]
 image:https://img.shields.io/badge/gitter-join-brightgreen.svg[Gitter,link="https://gitter.im/gdamore/tcell"]
-image:https://img.shields.io/badge/godoc-reference-blue.svg[GoDoc,link="https://godoc.org/github.com/gdamore/tcell"]
+image:https://img.shields.io/badge/godoc-reference-blue.svg[GoDoc,link="https://godoc.org/maunium.net/go/tcell"]
 image:http://goreportcard.com/badge/gdamore/tcell[Go Report Card,link="http://goreportcard.com/report/gdamore/tcell"]
 image:https://codecov.io/gh/gdamore/tcell/branch/master/graph/badge.svg[codecov,link="https://codecov.io/gh/gdamore/tcell"]
 image:https://tidelift.com/badges/github/gdamore/tcell?style=flat[Dependencies]
@@ -101,7 +101,7 @@ regular mouse motion events, and wheel events, if your terminal supports it.
 ## _Termbox_ Compatibility
 
 A compatibility layer for _termbox_ is provided in the `compat` directory.
-To use it, try importing `github.com/gdamore/tcell/termbox`
+To use it, try importing `maunium.net/go/tcell/termbox`
 instead.  Most _termbox-go_ programs will probably work without further
 modification.
 
