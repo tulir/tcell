@@ -1,6 +1,6 @@
 // +build solaris
 
-// Copyright 2017 The TCell Authors
+// Copyright 2015 The TCell Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use file except in compliance with the License.
@@ -152,12 +152,9 @@ func (t *tScreen) termioInit() error {
 	newtios.c_cflag &^= C.CSIZE | C.PARENB
 	newtios.c_cflag |= C.CS8
 
-	// This is setup for blocking reads.  In the past we attempted to
-	// use non-blocking reads, but now a separate input loop and timer
-	// copes with the problems we had on some systems (BSD/Darwin)
-	// where close hung forever.
-	newtios.Cc[syscall.VMIN] = 1
-	newtios.Cc[syscall.VTIME] = 0
+	// We wake up only when at least 1 byte has arrived
+	newtios.c_cc[C.VMIN] = 1
+	newtios.c_cc[C.VTIME] = 0
 
 	if rv, e = C.tcsetattr(fd, C.TCSANOW|C.TCSAFLUSH, &newtios); rv != 0 {
 		goto failed

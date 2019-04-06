@@ -20,9 +20,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mattn/go-runewidth"
+
 	"github.com/gdamore/tcell"
 	"github.com/gdamore/tcell/encoding"
-	runewidth "github.com/mattn/go-runewidth"
 )
 
 var row = 0

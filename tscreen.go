@@ -1,4 +1,4 @@
-// Copyright 2017 The TCell Authors
+// Copyright 2016 The TCell Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use file except in compliance with the License.
@@ -18,7 +18,9 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -27,6 +29,8 @@ import (
 
 	"github.com/gdamore/tcell/terminfo"
 )
+
+var escseq string
 
 // NewTerminfoScreen returns a Screen that uses the stock TTY interface
 // and POSIX termios, combined with a terminfo description taken from
@@ -38,7 +42,7 @@ import (
 // otherwise defaults taken from the terminal database are used.
 func NewTerminfoScreen() (Screen, error) {
 	ti, e := terminfo.LookupTerminfo(os.Getenv("TERM"))
-	if e != nil {
+	if e != nil || (os.Getenv("TERM") == "cygwin" && runtime.GOOS == "windows") {
 		return nil, e
 	}
 	t := &tScreen{ti: ti}
@@ -82,10 +86,10 @@ type tScreen struct {
 	sigwinch  chan os.Signal
 	quit      chan struct{}
 	indoneq   chan struct{}
+	inputchan chan InputPacket
 	keyexist  map[Key]bool
 	keycodes  map[string]*tKeyCode
 	keychan   chan []byte
-	keytimer  *time.Timer
 	keyexpire time.Time
 	cx        int
 	cy        int
@@ -106,15 +110,22 @@ type tScreen struct {
 	truecolor bool
 	escaped   bool
 	buttondn  bool
+	titleset  bool
 
 	sync.Mutex
+}
+
+// An InputPacket represents the data that the terminal sends us when
+// there is an event.
+type InputPacket struct {
+	n     int
+	e     error
+	chunk []byte
 }
 
 func (t *tScreen) Init() error {
 	t.evch = make(chan Event, 10)
 	t.indoneq = make(chan struct{})
-	t.keychan = make(chan []byte, 10)
-	t.keytimer = time.NewTimer(time.Millisecond * 50)
 	t.charset = "UTF-8"
 
 	t.charset = getCharset()
@@ -161,6 +172,7 @@ func (t *tScreen) Init() error {
 	t.TPuts(ti.HideCursor)
 	t.TPuts(ti.EnableAcs)
 	t.TPuts(ti.Clear)
+	t.TPuts("\x1b[?2004h")
 
 	t.quit = make(chan struct{})
 
@@ -174,7 +186,6 @@ func (t *tScreen) Init() error {
 	t.resize()
 	t.Unlock()
 
-	go t.mainLoop()
 	go t.inputLoop()
 
 	return nil
@@ -356,6 +367,9 @@ func (t *tScreen) prepareKeys() {
 		t.prepareKey(KeyRight, "\x1bOC")
 		t.prepareKey(KeyLeft, "\x1bOD")
 		t.prepareKey(KeyHome, "\x1bOH")
+
+		// t.prepareKeyMod(KeyCtrlPgUp, ModCtrl, "\x1b[5;5~")
+		// t.prepareKeyMod(KeyCtrlPgDn, ModCtrl, "\x1b[6;5~")
 	}
 
 outer:
@@ -384,6 +398,26 @@ outer:
 	}
 }
 
+func (t *tScreen) ResetTitle() {
+	if t.titleset {
+		//Reset terminal title. USERNAME for Windows support. Assumes USER and USERNAME will not both be set.
+		wd, _ := os.Getwd()
+		host, _ := os.Hostname()
+		var titlestring string
+		if strings.Contains(os.Getenv("TERM"), "xterm") {
+			titlestring = "\033]2;" + os.Getenv("USER") + os.Getenv("USERNAME") + "@" + host + ": " + wd + "\007"
+			t.TPuts(titlestring)
+		}
+		if os.Getenv("TERM") == "screen" {
+			for _, s := range strings.Split(os.Getenv("SHELL"), "/") {
+				titlestring = "\033k" + s + "\033\\"
+				titlestring = "\033]2;" + os.Getenv("USER") + os.Getenv("USERNAME") + "@" + host + ": " + wd + "\007"
+			}
+			t.TPuts(titlestring)
+		}
+	}
+}
+
 func (t *tScreen) Fini() {
 	t.Lock()
 	defer t.Unlock()
@@ -392,10 +426,13 @@ func (t *tScreen) Fini() {
 	t.cells.Resize(0, 0)
 	t.TPuts(ti.ShowCursor)
 	t.TPuts(ti.AttrOff)
+	t.ResetTitle()
 	t.TPuts(ti.Clear)
 	t.TPuts(ti.ExitCA)
 	t.TPuts(ti.ExitKeypad)
-	t.TPuts(ti.TParm(ti.MouseMode, 0))
+	// Close bracketed paste
+	t.TPuts("\x1b[?2004l")
+	t.DisableMouse()
 	t.curstyle = Style(-1)
 	t.clear = false
 	t.fini = true
@@ -504,7 +541,7 @@ func (t *tScreen) sendFgBg(fg Color, bg Color) {
 					int(r), int(g), int(b)))
 			}
 			if bg != ColorDefault && ti.SetBgRGB != "" {
-				r, g, b := bg.RGB()
+				r, g, b := fg.RGB()
 				t.TPuts(ti.TParm(ti.SetBgRGB,
 					int(r), int(g), int(b)))
 			}
@@ -748,7 +785,11 @@ func (t *tScreen) EnableMouse() {
 
 func (t *tScreen) DisableMouse() {
 	if len(t.mouse) != 0 {
-		t.TPuts(t.ti.TParm(t.ti.MouseMode, 0))
+		if t.ti.MouseMode == "\x1b[?1000h\x1b[?1002h\x1b[?1015h\x1b[?1006h" {
+			t.TPuts("\x1b[?1006l\x1b[?1015l\x1b[?10021l\x1b[?1000l")
+		} else {
+			t.TPuts(t.ti.TParm(t.ti.MouseMode, 0))
+		}
 	}
 }
 
@@ -886,7 +927,7 @@ func (t *tScreen) clip(x, y int) (int, int) {
 	return x, y
 }
 
-func (t *tScreen) postMouseEvent(x, y, btn int) {
+func (t *tScreen) postMouseEvent(x, y, btn int, motion bool) {
 
 	// XTerm mouse events only report at most one button at a time,
 	// which may include a wheel button.  Wheel motion events are
@@ -942,7 +983,8 @@ func (t *tScreen) postMouseEvent(x, y, btn int) {
 	// to the screen in that case.
 	x, y = t.clip(x, y)
 
-	ev := NewEventMouse(x, y, button, mod)
+	ev := NewEventMouse(x, y, button, mod, motion)
+	ev.esc = escseq
 	t.PostEvent(ev)
 }
 
@@ -1059,8 +1101,11 @@ func (t *tScreen) parseSgrMouse(buf *bytes.Buffer) (bool, bool) {
 				buf.ReadByte()
 				i--
 			}
-			t.postMouseEvent(x, y, btn)
+			t.postMouseEvent(x, y, btn, motion)
 			return true, true
+		default:
+			// Not a character that is in a mouse esc sequence
+			return false, false
 		}
 	}
 
@@ -1102,6 +1147,11 @@ func (t *tScreen) parseXtermMouse(buf *bytes.Buffer) (bool, bool) {
 			state++
 		case 3:
 			btn = int(b[i])
+			if btn != 128 && btn != 129 {
+				btn = int(b[i])
+			} else {
+				btn = 99
+			}
 			state++
 		case 4:
 			x = int(b[i]) - 32 - 1
@@ -1112,7 +1162,7 @@ func (t *tScreen) parseXtermMouse(buf *bytes.Buffer) (bool, bool) {
 				buf.ReadByte()
 				i--
 			}
-			t.postMouseEvent(x, y, btn)
+			t.postMouseEvent(x, y, btn, false)
 			return true, true
 		}
 	}
@@ -1139,6 +1189,7 @@ func (t *tScreen) parseFunctionKey(buf *bytes.Buffer) (bool, bool) {
 				t.escaped = false
 			}
 			ev := NewEventKey(k.key, r, mod)
+			ev.esc = escseq
 			t.PostEvent(ev)
 			for i := 0; i < len(esc); i++ {
 				buf.ReadByte()
@@ -1162,6 +1213,7 @@ func (t *tScreen) parseRune(buf *bytes.Buffer) (bool, bool) {
 			t.escaped = false
 		}
 		ev := NewEventKey(KeyRune, rune(b[0]), mod)
+		ev.esc = escseq
 		t.PostEvent(ev)
 		buf.ReadByte()
 		return true, true
@@ -1188,6 +1240,7 @@ func (t *tScreen) parseRune(buf *bytes.Buffer) (bool, bool) {
 					t.escaped = false
 				}
 				ev := NewEventKey(KeyRune, r, mod)
+				ev.esc = escseq
 				t.PostEvent(ev)
 			}
 			for nin > 0 {
@@ -1199,6 +1252,30 @@ func (t *tScreen) parseRune(buf *bytes.Buffer) (bool, bool) {
 	}
 	// Looks like potential escape
 	return true, false
+}
+
+func (t *tScreen) parseBracketedPaste(buf *bytes.Buffer) (bool, bool) {
+	b := buf.Bytes()
+
+	// Replace all carriage returns with newlines
+	str := strings.Replace(string(b), "\r", "\n", -1)
+	if strings.HasPrefix(str, "\x1b[200~") {
+		// The bracketed paste has started
+		if strings.HasSuffix(str, "\x1b[201~") {
+			// The bracketed paste has ended
+			// Strip out the start and end sequences
+			ev := NewEventPaste(str[6 : len(b)-6])
+			ev.esc = escseq
+			t.PostEvent(ev)
+			for i := 0; i < len(b); i++ {
+				buf.ReadByte()
+			}
+			return true, true
+		}
+		// There is still more coming
+		return true, false
+	}
+	return false, false
 }
 
 func (t *tScreen) scanInput(buf *bytes.Buffer, expire bool) {
@@ -1213,7 +1290,25 @@ func (t *tScreen) scanInput(buf *bytes.Buffer, expire bool) {
 			return
 		}
 
+		escseq = buf.String()
+
 		partials := 0
+
+		pastePartial := false
+		if part, comp := t.parseBracketedPaste(buf); comp {
+			continue
+		} else if part {
+			pastePartial = true
+			partials++
+		}
+
+		if !bytes.Contains(b, []byte("\x1b")) && utf8.RuneCount(b) > 1 {
+			ev := &EventPaste{t: time.Now(), text: string(bytes.Replace(b, []byte("\r"), []byte("\n"), -1))}
+			ev.esc = escseq
+			t.PostEvent(ev)
+			buf.Reset()
+			continue
+		}
 
 		if part, comp := t.parseRune(buf); comp {
 			continue
@@ -1244,31 +1339,46 @@ func (t *tScreen) scanInput(buf *bytes.Buffer, expire bool) {
 			}
 		}
 
-		if partials == 0 || expire {
-			if b[0] == '\x1b' {
-				if len(b) == 1 {
-					ev := NewEventKey(KeyEsc, 0, ModNone)
-					t.PostEvent(ev)
-					t.escaped = false
-				} else {
-					t.escaped = true
-				}
-				buf.ReadByte()
-				continue
+		// Handle Alt keys
+		if b[0] == '\x1b' && (len(b) == 2 || len(b) == 1) {
+			if partials != 0 && !expire {
+				// We need more data
+				// For example, if the sequence is `\x1b[`, this could
+				// be alt-[ or it could be the beginning of a mouse sequence
+				break
 			}
-			// Nothing was going to match, or we timed out
-			// waiting for more data -- just deliver the characters
-			// to the app & let them sort it out.  Possibly we
-			// should only do this for control characters like ESC.
-			by, _ := buf.ReadByte()
-			mod := ModNone
-			if t.escaped {
+
+			if len(b) == 1 {
+				ev := NewEventKey(KeyEsc, 0, ModNone)
+				ev.esc = escseq
+				t.PostEvent(ev)
 				t.escaped = false
-				mod = ModAlt
+			} else {
+				t.escaped = true
 			}
-			ev := NewEventKey(KeyRune, rune(by), mod)
-			t.PostEvent(ev)
+			buf.ReadByte()
+
+			if len(b) == 2 {
+				by, _ := buf.ReadByte()
+				mod := ModNone
+				if t.escaped {
+					t.escaped = false
+					mod = ModAlt
+				}
+				ev := NewEventKey(KeyRune, rune(by), mod)
+				ev.esc = escseq
+				t.PostEvent(ev)
+			}
 			continue
+		}
+
+		if expire || partials == 0 || (!pastePartial && len(b) > 64) {
+			ev := NewEventRaw(buf.String())
+			ev.esc = escseq
+			t.PostEvent(ev)
+
+			buf.Reset()
+			return
 		}
 
 		// well we have some partial data, wait until we get
@@ -1277,10 +1387,33 @@ func (t *tScreen) scanInput(buf *bytes.Buffer, expire bool) {
 	}
 }
 
-func (t *tScreen) mainLoop() {
+func (t *tScreen) inputLoop() {
+	t.inputchan = make(chan InputPacket)
 	buf := &bytes.Buffer{}
+
+	go func() {
+		chunk := make([]byte, 128)
+		for {
+			n, e := t.in.Read(chunk)
+			t.inputchan <- InputPacket{n, e, chunk}
+			time.Sleep(10 * time.Millisecond)
+
+			if e != nil && e != io.EOF {
+				close(t.inputchan)
+				return
+			}
+		}
+	}()
+
 	for {
 		select {
+		case <-time.After(50 * time.Millisecond):
+			if buf.Len() > 0 {
+				// After 200 milliseconds of nothing time out and parse
+				// whatever was last sent by the terminal
+				t.scanInput(buf, true)
+			}
+			continue
 		case <-t.quit:
 			close(t.indoneq)
 			return
@@ -1293,56 +1426,29 @@ func (t *tScreen) mainLoop() {
 			t.draw()
 			t.Unlock()
 			continue
-		case <-t.keytimer.C:
-			// If the timer fired, and the current time
-			// is after the expiration of the escape sequence,
-			// then we assume the escape sequence reached it's
-			// conclusion, and process the chunk independently.
-			// This lets us detect conflicts such as a lone ESC.
-			if buf.Len() > 0 {
-				if time.Now().After(t.keyexpire) {
+		case in, ok := <-t.inputchan:
+			if !ok {
+				return
+			}
+			n, e, chunk := in.n, in.e, in.chunk
+			switch e {
+			case io.EOF:
+				// If we timeout waiting for more bytes, then it's
+				// time to give up on it.  Even at 300 baud it takes
+				// less than 0.5 ms to transmit a whole byte.
+				if buf.Len() > 0 {
 					t.scanInput(buf, true)
 				}
+				continue
+			case nil:
+			default:
+				close(t.indoneq)
+				return
 			}
-			if buf.Len() > 0 {
-				if !t.keytimer.Stop() {
-					select {
-					case <-t.keytimer.C:
-					default:
-					}
-				}
-				t.keytimer.Reset(time.Millisecond * 50)
-			}
-		case chunk := <-t.keychan:
-			buf.Write(chunk)
-			t.keyexpire = time.Now().Add(time.Millisecond * 50)
+			buf.Write(chunk[:n])
+			// Now we need to parse the input buffer for events
 			t.scanInput(buf, false)
-			if !t.keytimer.Stop() {
-				select {
-				case <-t.keytimer.C:
-				default:
-				}
-			}
-			if buf.Len() > 0 {
-				t.keytimer.Reset(time.Millisecond * 50)
-			}
 		}
-	}
-}
-
-func (t *tScreen) inputLoop() {
-
-	for {
-		chunk := make([]byte, 128)
-		n, e := t.in.Read(chunk)
-		switch e {
-		case io.EOF:
-		case nil:
-		default:
-			t.PostEvent(NewEventError(e))
-			return
-		}
-		t.keychan <- chunk[:n]
 	}
 }
 
@@ -1414,3 +1520,14 @@ func (t *tScreen) HasKey(k Key) bool {
 }
 
 func (t *tScreen) Resize(int, int, int, int) {}
+
+func (t *tScreen) SetTitle(title string) {
+	if strings.Compare(os.Getenv("TERM"), "screen") == 0 {
+		t.titleset = true
+		t.TPuts("\033k" + title + "\033\\")
+	}
+	if strings.Contains(os.Getenv("TERM"), "xterm") {
+		t.TPuts("\033]2;" + title + "\007")
+		t.titleset = true
+	}
+}

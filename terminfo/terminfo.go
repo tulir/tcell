@@ -210,6 +210,8 @@ type Terminfo struct {
 	KeyAltShfEnd    string `json:"_kaEND,omitempty"`
 	KeyMetaShfHome  string `json:"_kmHOME,omitempty"`
 	KeyMetaShfEnd   string `json:"_kmEND,omitempty"`
+	KeyCtrlPgUp     string
+	KeyCtrlPgDn     string
 }
 
 type stackElem struct {
@@ -752,7 +754,7 @@ func loadFromFile(fname string, term string) (*Terminfo, error) {
 	}
 }
 
-// LookupTerminfo attempts to find a definition for the named $TERM.
+// LookupTerminfo attemps to find a definition for the named $TERM.
 // It first looks in the builtin database, which should cover just about
 // everyone.  If it can't find one there, then it will attempt to read
 // one from the JSON file located in either $TCELLDB, $HOME/.tcelldb,

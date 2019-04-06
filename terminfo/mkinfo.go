@@ -49,7 +49,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gdamore/tcell/terminfo"
+	"github.com/zyedidia/tcell/terminfo"
 )
 
 type termcap struct {
@@ -226,12 +226,15 @@ func (tc *termcap) setupterm(name string) error {
 // capabilities encoded in the program.  It should never need to be run by
 // an end user, but developers can use this to add codes for additional
 // terminal types.
-func getinfo(name string) (*terminfo.Terminfo, string, error) {
-	var tc termcap
-	if err := tc.setupterm(name); err != nil {
-		if err != nil {
-			return nil, "", err
-		}
+//
+// If a terminal name ending with -truecolor is given, and we cannot find
+// one, we will try to fabricte one from either the -256color (if present)
+// or the unadorned base name, adding the XTerm specific 24-bit color
+// escapes.  We believe that all 24-bit capable terminals use the same
+// escape sequences, and terminfo has yet to evolve to support this.
+func getinfo(name string) (*tcell.Terminfo, string, error) {
+	if err := setupterm(name); err != nil {
+		return nil, "", err
 	}
 	t := &terminfo.Terminfo{}
 	// If this is an alias record, then just emit the alias

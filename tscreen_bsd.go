@@ -61,6 +61,9 @@ func (t *tScreen) termioInit() error {
 	newtios.Cflag &^= syscall.CSIZE | syscall.PARENB
 	newtios.Cflag |= syscall.CS8
 
+	// We wake up only when at least 1 byte has arrived
+	newtios.Cc[syscall.VMIN] = 1
+	newtios.Cc[syscall.VTIME] = 0
 	tios = uintptr(unsafe.Pointer(&newtios))
 
 	ioc = uintptr(syscall.TIOCSETA)

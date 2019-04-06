@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gdamore/tcell"
-	"github.com/gdamore/tcell/views"
+	"github.com/zyedidia/tcell"
+	"github.com/zyedidia/tcell/views"
 )
 
 var app = &views.Application{}
@@ -101,6 +101,7 @@ func (m *model) GetCell(x, y int) (rune, tcell.Style, []rune, int) {
 }
 
 type mainWindow struct {
+	view   views.View
 	main   *views.CellView
 	keybar *views.SimpleStyledText
 	status *views.SimpleStyledTextBar
@@ -184,6 +185,7 @@ func main() {
 	window.keybar.RegisterStyle('A', tcell.StyleDefault.
 		Background(tcell.ColorSilver).
 		Foreground(tcell.ColorRed))
+	window.keybar.SetMarkup("[%AQ%N] Quit")
 
 	window.status = views.NewSimpleStyledTextBar()
 	window.status.SetStyle(tcell.StyleDefault.

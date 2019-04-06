@@ -1,6 +1,6 @@
 // +build linux
 
-// Copyright 2017 The TCell Authors
+// Copyright 2015 The TCell Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use file except in compliance with the License.
@@ -61,13 +61,9 @@ func (t *tScreen) termioInit() error {
 	newtios.Cflag &^= syscall.CSIZE | syscall.PARENB
 	newtios.Cflag |= syscall.CS8
 
-	// This is setup for blocking reads.  In the past we attempted to
-	// use non-blocking reads, but now a separate input loop and timer
-	// copes with the problems we had on some systems (BSD/Darwin)
-	// where close hung forever.
+	// We wake up only when at least 1 byte has arrived
 	newtios.Cc[syscall.VMIN] = 1
 	newtios.Cc[syscall.VTIME] = 0
-
 	tios = uintptr(unsafe.Pointer(&newtios))
 
 	// Well this kind of sucks, because we don't have TCSETSF, but only

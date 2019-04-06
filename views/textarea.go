@@ -18,7 +18,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gdamore/tcell"
+	"github.com/zyedidia/tcell"
 )
 
 // TextArea is a pannable 2 dimensional text widget. It wraps both
@@ -57,20 +57,19 @@ func (m *linesModel) GetBounds() (int, int) {
 }
 
 func (m *linesModel) limitCursor() {
-	if m.x > m.width-1 {
-		m.x = m.width - 1
-	}
-	if m.y > m.height-1 {
-		m.y = m.height - 1
-	}
 	if m.x < 0 {
 		m.x = 0
 	}
 	if m.y < 0 {
 		m.y = 0
 	}
+	if m.x > m.width-1 {
+		m.x = m.width - 1
+	}
+	if m.y > m.height-1 {
+		m.y = m.height - 1
+	}
 }
-
 func (m *linesModel) SetCursor(x, y int) {
 	m.x = x
 	m.y = y

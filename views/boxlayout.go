@@ -15,7 +15,7 @@
 package views
 
 import (
-	"github.com/gdamore/tcell"
+	"github.com/zyedidia/tcell"
 )
 
 // BoxLayout is a container Widget that lays out its child widgets in
@@ -99,7 +99,6 @@ func (b *BoxLayout) hLayout() {
 		cw += c.pad
 
 		c.view.Resize(x, y, cw, h)
-		c.widget.Resize()
 		x += xinc
 	}
 }
@@ -163,7 +162,6 @@ func (b *BoxLayout) vLayout() {
 		yinc = ch + c.pad
 		ch += c.pad
 		c.view.Resize(x, y, w, ch)
-		c.widget.Resize()
 		y += yinc
 	}
 }
@@ -285,15 +283,11 @@ func (b *BoxLayout) InsertWidget(index int, widget Widget, fill float64) {
 
 // RemoveWidget removes a Widget from the layout.
 func (b *BoxLayout) RemoveWidget(widget Widget) {
-	changed := false
 	for i := 0; i < len(b.cells); i++ {
 		if b.cells[i].widget == widget {
 			b.cells = append(b.cells[:i], b.cells[i+1:]...)
-			changed = true
+			return
 		}
-	}
-	if !changed {
-		return
 	}
 	b.changed = true
 	widget.Unwatch(b)

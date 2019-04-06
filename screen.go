@@ -133,7 +133,7 @@ type Screen interface {
 	Sync()
 
 	// CharacterSet returns information about the character set.
-	// This isn't the full locale, but it does give us the input/output
+	// This isn't the full locale, but it does give us the input/ouput
 	// character set.  Note that this is just for diagnostic purposes,
 	// we normally translate input/output to/from UTF-8, regardless of
 	// what the user's environment is.
@@ -193,6 +193,8 @@ type Screen interface {
 	// menus, displayed hot-keys, etc.  Note that KeyRune (literal
 	// runes) is always true.
 	HasKey(Key) bool
+
+	SetTitle(string)
 }
 
 // NewScreen returns a default Screen suitable for the user's terminal

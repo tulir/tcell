@@ -47,12 +47,17 @@ type EventKey struct {
 	mod ModMask
 	key Key
 	ch  rune
+	esc string
 }
 
 // When returns the time when this Event was created, which should closely
 // match the time when the key was pressed.
 func (ev *EventKey) When() time.Time {
 	return ev.t
+}
+
+func (ev *EventKey) EscSeq() string {
+	return ev.esc
 }
 
 // Rune returns the rune corresponding to the key press, if it makes sense.
@@ -78,9 +83,7 @@ func (ev *EventKey) Modifiers() ModMask {
 	return ev.mod
 }
 
-// KeyNames holds the written names of special keys. Useful to echo back a key
-// name, or to look up a key from a string value.
-var KeyNames = map[Key]string{
+var keyNames = map[Key]string{
 	KeyEnter:          "Enter",
 	KeyBackspace:      "Backspace",
 	KeyTab:            "Tab",
@@ -93,6 +96,26 @@ var KeyNames = map[Key]string{
 	KeyDown:           "Down",
 	KeyLeft:           "Left",
 	KeyRight:          "Right",
+	KeyAltUp:          "AltUp",
+	KeyAltDown:        "AltDown",
+	KeyAltLeft:        "AltLeft",
+	KeyAltRight:       "AltRight",
+	KeyCtrlUp:         "CtrlUp",
+	KeyCtrlDown:       "CtrlDown",
+	KeyCtrlLeft:       "CtrlLeft",
+	KeyCtrlRight:      "CtrlRight",
+	KeyShiftUp:        "ShiftUp",
+	KeyShiftDown:      "ShiftDown",
+	KeyShiftLeft:      "ShiftLeft",
+	KeyShiftRight:     "ShiftRight",
+	KeyAltShiftUp:     "AltShiftUp",
+	KeyAltShiftDown:   "AltShiftDown",
+	KeyAltShiftLeft:   "AltShiftLeft",
+	KeyAltShiftRight:  "AltShiftRight",
+	KeyCtrlShiftUp:    "CtrlShiftUp",
+	KeyCtrlShiftDown:  "CtrlShiftDown",
+	KeyCtrlShiftLeft:  "CtrlShiftLeft",
+	KeyCtrlShiftRight: "CtrlShiftRight",
 	KeyHome:           "Home",
 	KeyEnd:            "End",
 	KeyUpLeft:         "UpLeft",
@@ -220,7 +243,7 @@ func (ev *EventKey) Name() string {
 	}
 
 	ok := false
-	if s, ok = KeyNames[ev.key]; !ok {
+	if s, ok = keyNames[ev.key]; !ok {
 		if ev.key == KeyRune {
 			s = "Rune[" + string(ev.ch) + "]"
 		} else {
@@ -295,9 +318,31 @@ const (
 	KeyUpRight
 	KeyDownLeft
 	KeyDownRight
+	KeyAltUp
+	KeyAltDown
+	KeyAltLeft
+	KeyAltRight
+	KeyCtrlUp
+	KeyCtrlDown
+	KeyCtrlLeft
+	KeyCtrlRight
+	KeyShiftUp
+	KeyShiftDown
+	KeyShiftLeft
+	KeyShiftRight
+	KeyAltShiftUp
+	KeyAltShiftDown
+	KeyAltShiftLeft
+	KeyAltShiftRight
+	KeyCtrlShiftUp
+	KeyCtrlShiftDown
+	KeyCtrlShiftLeft
+	KeyCtrlShiftRight
 	KeyCenter
 	KeyPgUp
 	KeyPgDn
+	KeyCtrlPgUp
+	KeyCtrlPgDn
 	KeyHome
 	KeyEnd
 	KeyInsert
