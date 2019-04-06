@@ -817,7 +817,7 @@ var colorValues = map[Color]int32{
 	ColorYellowGreen:          0x9ACD32,
 }
 
-var colorNames = map[string]Color{
+var ColorNames = map[string]Color{
 	"black":                ColorBlack,
 	"maroon":               ColorMaroon,
 	"green":                ColorGreen,
@@ -1004,7 +1004,7 @@ func NewHexColor(v int32) Color {
 // GetColor creates a Color from a color name (W3C name). A hex value may
 // be supplied as a string in the format "#ffffff".
 func GetColor(name string) Color {
-	if c, ok := colorNames[name]; ok {
+	if c, ok := ColorNames[name]; ok {
 		return c
 	}
 	if len(name) == 7 && name[0] == '#' {
