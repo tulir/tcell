@@ -5,7 +5,7 @@ package terminfo
 func init() {
 	// VTE-based terminal
 	AddTerminfo(&Terminfo{
-		Name:            "xterm-termite",
+		Name:            "termite",
 		Columns:         80,
 		Lines:           24,
 		Colors:          256,
@@ -18,7 +18,8 @@ func init() {
 		AttrOff:         "\x1b(B\x1b[m",
 		Underline:       "\x1b[4m",
 		Bold:            "\x1b[1m",
-		Dim:             "\x1b[2m",
+		Italic:          "\x1b[3m",
+		Strikethrough:   "\x1b[9m",
 		Reverse:         "\x1b[7m",
 		EnterKeypad:     "\x1b[?1h\x1b=",
 		ExitKeypad:      "\x1b[?1l\x1b>",

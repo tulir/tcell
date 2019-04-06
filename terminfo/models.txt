@@ -23,7 +23,9 @@ rxvt-256color
 rxvt-unicode
 rxvt-unicode-256color
 screen
+screen-bce
 screen-256color
+screen-256color-bce
 st
 st-256color
 st-truecolor
@@ -32,6 +34,9 @@ st-meta-256color
 st-meta-truecolor
 sun
 sun-color
+termite
+tmux
+tmux-256color
 tvi910
 tvi912
 tvi921
