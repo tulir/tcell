@@ -76,8 +76,8 @@ type tScreen struct {
 	w         int
 	fini      bool
 	cells     CellBuffer
-	in        *os.File
-	out       *os.File
+	in        io.ReadCloser
+	out       io.WriteCloser
 	buffering bool // true if we are collecting writes to buf instead of sending directly to out
 	buf       bytes.Buffer
 	curstyle  Style
