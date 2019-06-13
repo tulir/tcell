@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"io"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -28,6 +27,7 @@ import (
 	"golang.org/x/text/transform"
 
 	"maunium.net/go/tcell/terminfo"
+	"maunium.net/go/tcell/terminfo/dynamic"
 )
 
 var escseq string
@@ -45,9 +45,13 @@ func NewTerminfoScreen() (Screen, error) {
 	if term == "screen" && len(os.Getenv("TMUX")) > 0 {
 		term = "tmux"
 	}
-	ti, e := terminfo.LookupTerminfo(term)
-	if e != nil || (term == "cygwin" && runtime.GOOS == "windows") {
-		return nil, e
+	ti, e := terminfo.LookupTerminfo(os.Getenv("TERM"))
+	if e != nil {
+		ti, _, e = dynamic.LoadTerminfo(os.Getenv("TERM"))
+		if e != nil {
+			return nil, e
+		}
+		terminfo.AddTerminfo(ti)
 	}
 	t := &tScreen{ti: ti}
 
