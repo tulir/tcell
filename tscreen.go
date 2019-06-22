@@ -41,8 +41,12 @@ var escseq string
 // $COLUMNS environment variables can be set to the actual window size,
 // otherwise defaults taken from the terminal database are used.
 func NewTerminfoScreen() (Screen, error) {
-	ti, e := terminfo.LookupTerminfo(os.Getenv("TERM"))
-	if e != nil || (os.Getenv("TERM") == "cygwin" && runtime.GOOS == "windows") {
+	term := os.Getenv("TERM")
+	if term == "screen" && len(os.Getenv("TMUX")) > 0 {
+		term = "tmux"
+	}
+	ti, e := terminfo.LookupTerminfo(term)
+	if e != nil || (term == "cygwin" && runtime.GOOS == "windows") {
 		return nil, e
 	}
 	t := &tScreen{ti: ti}
