@@ -43,7 +43,7 @@ var escseq string
 func NewTerminfoScreen() (Screen, error) {
 	term := os.Getenv("TERM")
 	if term == "screen" && len(os.Getenv("TMUX")) > 0 {
-		term = "tmux"
+		term = "tmux-256color"
 	}
 	ti, e := terminfo.LookupTerminfo(os.Getenv("TERM"))
 	if e != nil {
