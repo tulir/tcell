@@ -50,9 +50,13 @@ const (
 // $COLUMNS environment variables can be set to the actual window size,
 // otherwise defaults taken from the terminal database are used.
 func NewTerminfoScreen() (Screen, error) {
-	ti, e := terminfo.LookupTerminfo(os.Getenv("TERM"))
+	term := os.Getenv("TERM")
+	if len(term) >= 6 && term[:6] == "screen" && len(os.Getenv("TMUX")) > 0 {
+		term = "tmux"
+	}
+	ti, e := terminfo.LookupTerminfo(term)
 	if e != nil {
-		ti, e = loadDynamicTerminfo(os.Getenv("TERM"))
+		ti, e = loadDynamicTerminfo(term)
 		if e != nil {
 			return nil, e
 		}
