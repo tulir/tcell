@@ -2,7 +2,7 @@
 
 package termite
 
-import "github.com/zyedidia/tcell/terminfo"
+import "maunium.net/go/tcell/terminfo"
 
 func init() {
 

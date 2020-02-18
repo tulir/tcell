@@ -19,7 +19,7 @@ package tcell
 import (
 	"errors"
 
-	"github.com/zyedidia/tcell/terminfo"
+	"maunium.net/go/tcell/terminfo"
 )
 
 func loadDynamicTerminfo(term string) (*terminfo.Terminfo, error) {

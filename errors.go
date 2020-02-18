@@ -18,7 +18,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/zyedidia/tcell/terminfo"
+	"maunium.net/go/tcell/terminfo"
 )
 
 var (

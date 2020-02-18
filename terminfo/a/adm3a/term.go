@@ -2,7 +2,7 @@
 
 package adm3a
 
-import "github.com/zyedidia/tcell/terminfo"
+import "maunium.net/go/tcell/terminfo"
 
 func init() {
 

@@ -1,4 +1,4 @@
-module github.com/zyedidia/tcell
+module maunium.net/go/tcell
 
 require (
 	github.com/gdamore/encoding v1.0.0

@@ -26,10 +26,10 @@ import (
 
 	"golang.org/x/text/transform"
 
-	"github.com/zyedidia/tcell/terminfo"
+	"maunium.net/go/tcell/terminfo"
 
 	// import the stock terminals
-	_ "github.com/zyedidia/tcell/terminfo/base"
+	_ "maunium.net/go/tcell/terminfo/base"
 )
 
 // Magic strings for bracketed paste

@@ -2,7 +2,7 @@
 
 package xterm_kitty
 
-import "github.com/zyedidia/tcell/terminfo"
+import "maunium.net/go/tcell/terminfo"
 
 func init() {
 

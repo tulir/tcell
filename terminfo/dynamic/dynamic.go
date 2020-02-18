@@ -30,7 +30,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/zyedidia/tcell/terminfo"
+	"maunium.net/go/tcell/terminfo"
 )
 
 type termcap struct {
