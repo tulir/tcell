@@ -13,6 +13,8 @@ func init() {
 		Lines:        24,
 		Bell:         "\a",
 		Clear:        "\x1bH\x1bJ",
+		Italic:       "\x1b[3m",
+		Strike:       "\x1b[9m",
 		PadChar:      "\x00",
 		AltChars:     "+h.k0affggolpnqprrss",
 		EnterAcs:     "\x1bF",

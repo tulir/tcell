@@ -17,6 +17,8 @@ func init() {
 		AttrOff:      "\x1b[m\x0f$<2>",
 		Underline:    "\x1b[4m$<2>",
 		Bold:         "\x1b[1m$<2>",
+		Italic:       "\x1b[3m",
+		Strike:       "\x1b[9m",
 		Blink:        "\x1b[5m$<2>",
 		Reverse:      "\x1b[7m$<2>",
 		EnterKeypad:  "\x1b[?1h\x1b=",
