@@ -41,21 +41,23 @@ var (
 // in Go, but when we write out JSON, we use the same names as terminfo.
 // The name, aliases and smous, rmous fields do not come from terminfo directly.
 type Terminfo struct {
-	Name         string
-	Aliases      []string
-	Columns      int    // cols
-	Lines        int    // lines
-	Colors       int    // colors
-	Bell         string // bell
-	Clear        string // clear
-	EnterCA      string // smcup
-	ExitCA       string // rmcup
-	ShowCursor   string // cnorm
-	HideCursor   string // civis
-	AttrOff      string // sgr0
-	Underline    string // smul
-	Bold         string // bold
-	Blink        string // blink
+	Name       string
+	Aliases    []string
+	Columns    int    // cols
+	Lines      int    // lines
+	Colors     int    // colors
+	Bell       string // bell
+	Clear      string // clear
+	EnterCA    string // smcup
+	ExitCA     string // rmcup
+	ShowCursor string // cnorm
+	HideCursor string // civis
+	AttrOff    string // sgr0
+	Underline  string // smul
+	Bold       string // bold
+	Blink      string // blink
+	Italic        string // sitm
+	Strike string // strikethrough
 	Reverse      string // rev
 	Dim          string // dim
 	EnterKeypad  string // smkx

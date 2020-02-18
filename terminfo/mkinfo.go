@@ -226,6 +226,11 @@ func getinfo(name string) (*terminfo.Terminfo, string, error) {
 	t.AttrOff = tc.getstr("sgr0")
 	t.Underline = tc.getstr("smul")
 	t.Bold = tc.getstr("bold")
+	t.Italic = tc.getstr("sitm")
+	if len(t.Italic) == 0 {
+		t.Italic = "\x1b[3m"
+	}
+	t.Strike = "\x1b[9m"
 	t.Blink = tc.getstr("blink")
 	t.Dim = tc.getstr("dim")
 	t.Reverse = tc.getstr("rev")
@@ -507,6 +512,9 @@ func dotGoInfo(w io.Writer, terms []*TData) {
 		dotGoAddStr(w, "AttrOff", t.AttrOff)
 		dotGoAddStr(w, "Underline", t.Underline)
 		dotGoAddStr(w, "Bold", t.Bold)
+		dotGoAddStr(w, "Italic", t.Italic)
+		//dotGoAddStr(w, "Strike", "\x1b[9m")
+		dotGoAddStr(w, "Strike", t.Strike)
 		dotGoAddStr(w, "Dim", t.Dim)
 		dotGoAddStr(w, "Blink", t.Blink)
 		dotGoAddStr(w, "Reverse", t.Reverse)

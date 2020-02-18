@@ -209,6 +209,11 @@ func LoadTerminfo(name string) (*terminfo.Terminfo, string, error) {
 	t.AttrOff = tc.getstr("sgr0")
 	t.Underline = tc.getstr("smul")
 	t.Bold = tc.getstr("bold")
+	t.Italic = tc.getstr("sitm")
+	if len(t.Italic) == 0 {
+		t.Italic = "\x1b[3m"
+	}
+	t.Strike = "\x1b[9m"
 	t.Blink = tc.getstr("blink")
 	t.Dim = tc.getstr("dim")
 	t.Reverse = tc.getstr("rev")

@@ -14,5 +14,6 @@ do
         direc=${alias:0:1}
 
         mkdir -p ${direc}/${alias}
-        go run mkinfo.go -P ${alias} -go ${direc}/${alias}/term.go ${line//,/ }
+        echo "go run mkinfo.go -P ${alias} -nofatal -go ${direc}/${alias}/term.go ${line//,/ }"
+        go run mkinfo.go -P ${alias} -nofatal -go ${direc}/${alias}/term.go ${line//,/ }
 done < models.txt
