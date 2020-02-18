@@ -8,6 +8,8 @@ github.com/mattn/go-runewidth v0.0.4 h1:2BvfKmzob6Bmd4YsL0zygOqfdFnK7GR4QL06Do4/
 github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/npat-efault/poller v2.0.0+incompatible h1:jtTdXWKgN5kDK41ts8hoY1rvTEi0K08MTB8/bRO9MqE=
 github.com/npat-efault/poller v2.0.0+incompatible/go.mod h1:lni01B89P8PtVpwlAhdhK1niN5rPkDGGpGGgBJzpSgo=
+github.com/zyedidia/poller v2.0.0+incompatible h1:DMOvB0EXz2JTokqOKfxPWN/8xXFJbO+m4vNhMkOY7Lo=
+github.com/zyedidia/poller v2.0.0+incompatible/go.mod h1:vZXJOHGDcuK08GXhF6IAY0ZFd2WcgOR5DOTp84Uk5eE=
 github.com/zyedidia/poller v2.0.1-0.20170616160828-ab09682913b7+incompatible h1:8VIuqV713C9SmwvUGGpMhrK/5RdsRyp9N4YnPDPDe6c=
 github.com/zyedidia/poller v2.0.1-0.20170616160828-ab09682913b7+incompatible/go.mod h1:vZXJOHGDcuK08GXhF6IAY0ZFd2WcgOR5DOTp84Uk5eE=
 golang.org/x/text v0.3.0 h1:g61tztE5qeGQ89tm6NTjjM9VPIm088od1l6aSorWRWg=
