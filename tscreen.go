@@ -931,7 +931,7 @@ func (t *tScreen) clip(x, y int) (int, int) {
 // buildMouseEvent returns an event based on the supplied coordinates and button
 // state. Note that the screen's mouse button state is updated based on the
 // input to this function (i.e. it mutates the receiver).
-func (t *tScreen) buildMouseEvent(x, y, btn int) *EventMouse {
+func (t *tScreen) buildMouseEvent(x, y, btn int, motion bool) *EventMouse {
 	// XTerm mouse events only report at most one button at a time,
 	// which may include a wheel button.  Wheel motion events are
 	// reported as single impulses, while other button events are reported
@@ -988,7 +988,7 @@ func (t *tScreen) buildMouseEvent(x, y, btn int) *EventMouse {
 
 	escseq := t.escbuf.String()
 	t.escbuf.Reset()
-	return NewEventMouse(x, y, button, mod, escseq)
+	return NewEventMouse(x, y, button, mod, escseq, motion)
 }
 
 // parseSgrMouse attempts to locate an SGR mouse record at the start of the
@@ -1104,7 +1104,7 @@ func (t *tScreen) parseSgrMouse(buf *bytes.Buffer, evs *[]Event) (bool, bool) {
 				t.escbuf.WriteByte(by)
 				i--
 			}
-			*evs = append(*evs, t.buildMouseEvent(x, y, btn))
+			*evs = append(*evs, t.buildMouseEvent(x, y, btn, motion))
 			return true, true
 		}
 	}
@@ -1158,7 +1158,7 @@ func (t *tScreen) parseXtermMouse(buf *bytes.Buffer, evs *[]Event) (bool, bool) 
 				t.escbuf.WriteByte(by)
 				i--
 			}
-			*evs = append(*evs, t.buildMouseEvent(x, y, btn))
+			*evs = append(*evs, t.buildMouseEvent(x, y, btn, false))
 			return true, true
 		}
 	}

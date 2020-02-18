@@ -41,6 +41,8 @@ type EventMouse struct {
 	x   int
 	y   int
 	esc string
+
+	motion bool
 }
 
 // When returns the time when this EventMouse was created.
@@ -69,10 +71,14 @@ func (ev *EventMouse) EscSeq() string {
 	return ev.esc
 }
 
+func (ev *EventMouse) HasMotion() bool {
+	return ev.motion
+}
+
 // NewEventMouse is used to create a new mouse event.  Applications
 // shouldn't need to use this; its mostly for screen implementors.
-func NewEventMouse(x, y int, btn ButtonMask, mod ModMask, esc string) *EventMouse {
-	return &EventMouse{t: time.Now(), x: x, y: y, btn: btn, mod: mod, esc: esc}
+func NewEventMouse(x, y int, btn ButtonMask, mod ModMask, esc string, motion bool) *EventMouse {
+	return &EventMouse{t: time.Now(), x: x, y: y, btn: btn, mod: mod, esc: esc, motion: motion}
 }
 
 // ButtonMask is a mask of mouse buttons and wheel events.  Mouse button presses
