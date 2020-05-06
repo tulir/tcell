@@ -15,6 +15,8 @@ func init() {
 		Clear:        "\x1a",
 		AttrOff:      "\x1bG0",
 		Underline:    "\x1bG8",
+		Italic:       "\x1b[3m",
+		Strike:       "\x1b[9m",
 		Reverse:      "\x1bG4",
 		PadChar:      "\x00",
 		SetCursor:    "\x1b=%p1%' '%+%c%p2%' '%+%c",

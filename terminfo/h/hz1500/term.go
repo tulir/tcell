@@ -13,6 +13,8 @@ func init() {
 		Lines:       24,
 		Bell:        "\a",
 		Clear:       "~\x1c",
+		Italic:      "\x1b[3m",
+		Strike:      "\x1b[9m",
 		PadChar:     "\x00",
 		SetCursor:   "~\x11%p2%p2%?%{30}%>%t%' '%+%;%'`'%+%c%p1%'`'%+%c",
 		CursorBack1: "\b",

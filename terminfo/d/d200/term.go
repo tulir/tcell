@@ -18,6 +18,8 @@ func init() {
 		Underline:   "\x14",
 		Bold:        "\x1eD\x14",
 		Dim:         "\x1c",
+		Italic:      "\x1b[3m",
+		Strike:      "\x1b[9m",
 		Blink:       "\x0e",
 		Reverse:     "\x1eD",
 		PadChar:     "\x00",

@@ -18,6 +18,8 @@ func init() {
 		Underline:    "\x1b&dD",
 		Bold:         "\x1b&dB",
 		Dim:          "\x1b&dH",
+		Italic:       "\x1b[3m",
+		Strike:       "\x1b[9m",
 		Reverse:      "\x1b&dB",
 		EnterKeypad:  "\x1b&s1A",
 		ExitKeypad:   "\x1b&s0A",

@@ -20,6 +20,8 @@ func init() {
 		Underline:    "\x1b[4m",
 		Bold:         "\x1b[1m",
 		Dim:          "\x1b[2m",
+		Italic:       "\x1b[3m",
+		Strike:       "\x1b[9m",
 		Blink:        "\x1b[5m",
 		Reverse:      "\x1b[7m",
 		SetFg:        "\x1b[3%p1%dm",

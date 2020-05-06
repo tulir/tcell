@@ -15,6 +15,8 @@ func init() {
 		Bell:         "\a",
 		Clear:        "\x1a",
 		Underline:    "\x1bl",
+		Italic:       "\x1b[3m",
+		Strike:       "\x1b[9m",
 		PadChar:      "\x00",
 		SetCursor:    "\x1b=%p1%' '%+%c%p2%' '%+%c",
 		CursorBack1:  "\b",

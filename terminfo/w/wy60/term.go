@@ -21,6 +21,8 @@ func init() {
 		AttrOff:      "\x1b(\x1bH\x03\x1bG0\x1bcD",
 		Underline:    "\x1bG8",
 		Dim:          "\x1bGp",
+		Italic:       "\x1b[3m",
+		Strike:       "\x1b[9m",
 		Blink:        "\x1bG2",
 		Reverse:      "\x1bG4",
 		PadChar:      "\x00",

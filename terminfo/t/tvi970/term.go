@@ -15,6 +15,8 @@ func init() {
 		EnterCA:      "\x1b[?20l\x1b[?7h\x1b[1Q",
 		AttrOff:      "\x1b[m",
 		Underline:    "\x1b[4m",
+		Italic:       "\x1b[3m",
+		Strike:       "\x1b[9m",
 		PadChar:      "\x00",
 		EnterAcs:     "\x1b(B",
 		ExitAcs:      "\x1b(B",

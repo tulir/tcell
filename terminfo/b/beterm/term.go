@@ -17,6 +17,8 @@ func init() {
 		AttrOff:      "\x1b[0;10m",
 		Underline:    "\x1b[4m",
 		Bold:         "\x1b[1m",
+		Italic:       "\x1b[3m",
+		Strike:       "\x1b[9m",
 		Reverse:      "\x1b[7m",
 		EnterKeypad:  "\x1b[?4h",
 		ExitKeypad:   "\x1b[?4l",
