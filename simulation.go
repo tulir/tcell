@@ -509,3 +509,7 @@ func (s *simscreen) HasKey(Key) bool {
 
 func (s *simscreen) RegisterRawSeq(string) {}
 func (s *simscreen) SetPaste(bool)         {}
+
+func (s *simscreen) Beep() error {
+	return nil
+}

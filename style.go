@@ -100,6 +100,18 @@ func (s Style) Bold(on bool) Style {
 	return s.setAttrs(Style(AttrBold), on)
 }
 
+// Blink returns a new style based on s, with the blink attribute set
+// as requested.
+func (s Style) Blink(on bool) Style {
+	return s.setAttrs(Style(AttrBlink), on)
+}
+
+// Dim returns a new style based on s, with the dim attribute set
+// as requested.
+func (s Style) Dim(on bool) Style {
+	return s.setAttrs(Style(AttrDim), on)
+}
+
 // Italic returns a new style based on s, with the italic attribute set
 // as requested.
 func (s Style) Italic(on bool) Style {
@@ -116,18 +128,6 @@ func (s Style) Strikethrough(on bool) Style {
 // attribute set as requested.
 func (s Style) Strike(on bool) Style {
 	return s.setAttrs(Style(AttrStrike), on)
-}
-
-// Blink returns a new style based on s, with the blink attribute set
-// as requested.
-func (s Style) Blink(on bool) Style {
-	return s.setAttrs(Style(AttrBlink), on)
-}
-
-// Dim returns a new style based on s, with the dim attribute set
-// as requested.
-func (s Style) Dim(on bool) Style {
-	return s.setAttrs(Style(AttrDim), on)
 }
 
 // Reverse returns a new style based on s, with the reverse attribute set

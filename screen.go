@@ -204,6 +204,10 @@ type Screen interface {
 	// will be treated as pastes rather than as the user typing really
 	// fast. This is to enable a feature similar to Vim's "paste" option.
 	SetPaste(bool)
+
+	// Beep attempts to sound an OS-dependent audible alert and returns an error
+	// when unsuccessful.
+	Beep() error
 }
 
 // NewScreen returns a default Screen suitable for the user's terminal

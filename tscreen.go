@@ -625,6 +625,9 @@ func (t *tScreen) drawCell(x, y int) int {
 		if attrs&AttrDim != 0 {
 			t.TPuts(ti.Dim)
 		}
+		if attrs&AttrItalic != 0 {
+			t.TPuts(ti.Italic)
+		}
 		t.curstyle = style
 	}
 	// now emit runes - taking care to not overrun width with a
@@ -1469,8 +1472,9 @@ func (t *tScreen) mainLoop() {
 }
 
 func (t *tScreen) inputLoop() {
+	chunk := make([]byte, 128)
+
 	for {
-		chunk := make([]byte, 4096)
 		n, e := t.in.Read(chunk)
 		switch e {
 		case io.EOF:
